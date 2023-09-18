@@ -143,6 +143,310 @@ app.delete('/user/:id', function (req, res) {
   });
 });
 
+
+app.post('/order', function (req, res) {
+  const {
+    pao_de_alho,
+    linguica_fina,
+    liguica_groca,
+    queijo,
+    frango,
+    porco,
+    costela_de_ovelha,
+    paleta_de_ovelha,
+    picanha,
+    file_mignion,
+    maminha,
+    entrecort,
+    costela,
+    vazio,
+    alcatra,
+    capa_de_file,
+    sorvete,
+    chocolate_barra,
+    bombom,
+    ceveja_lata,
+    refrigerante,
+    agua_sem_gas,
+    agua_com_gas,
+    espumante,
+    entrega,
+    pagamento,
+  } = req.body;
+
+  // ... (you may want to add validation for required fields here) ...
+
+  const insertOrderQuery = `
+    INSERT INTO orders (
+      pao_de_alho,
+      linguica_fina,
+      liguica_groca,
+      queijo,
+      frango,
+      porco,
+      costela_de_ovelha,
+      paleta_de_ovelha,
+      picanha,
+      file_mignion,
+      maminha,
+      entrecort,
+      costela,
+      vazio,
+      alcatra,
+      capa_de_file,
+      sorvete,
+      chocolate_barra,
+      bombom,
+      ceveja_lata,
+      refrigerante,
+      agua_sem_gas,
+      agua_com_gas,
+      espumante,
+      entrega,
+      pagamento
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  connection.query(
+    insertOrderQuery,
+    [
+      pao_de_alho,
+      linguica_fina,
+      liguica_groca,
+      queijo,
+      frango,
+      porco,
+      costela_de_ovelha,
+      paleta_de_ovelha,
+      picanha,
+      file_mignion,
+      maminha,
+      entrecort,
+      costela,
+      vazio,
+      alcatra,
+      capa_de_file,
+      sorvete,
+      chocolate_barra,
+      bombom,
+      ceveja_lata,
+      refrigerante,
+      agua_sem_gas,
+      agua_com_gas,
+      espumante,
+      entrega,
+      pagamento,
+    ],
+    function (error, results) {
+      if (error) {
+        console.error('Error inserting order data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      console.log('Order created successfully with ID:', results.insertId);
+
+      // Return the newly created order data
+      const newOrder = {
+        id: results.insertId,
+        pao_de_alho,
+        linguica_fina,
+        liguica_groca,
+        queijo,
+        frango,
+        porco,
+        costela_de_ovelha,
+        paleta_de_ovelha,
+        picanha,
+        file_mignion,
+        maminha,
+        entrecort,
+        costela,
+        vazio,
+        alcatra,
+        capa_de_file,
+        sorvete,
+        chocolate_barra,
+        bombom,
+        ceveja_lata,
+        refrigerante,
+        agua_sem_gas,
+        agua_com_gas,
+        espumante,
+        entrega,
+        pagamento,
+      };
+
+      res.status(201).json({ message: 'Order created successfully', order: newOrder });
+    }
+  );
+});
+
+// Retrieve all orders
+app.get('/order', function (req, res) {
+  connection.query('SELECT * FROM orders', function (error, results) {
+    if (error) {
+      console.error('Error retrieving orders:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+    res.status(200).json(results);
+  });
+});
+
+// Retrieve a specific order by ID
+app.get('/order/:id', function (req, res) {
+  const orderId = req.params.id;
+
+  connection.query('SELECT * FROM orders WHERE id = ?', [orderId], function (error, results) {
+    if (error) {
+      console.error('Error retrieving order by ID:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Order not found' });
+    } else {
+      res.status(200).json(results[0]);
+    }
+  });
+});
+
+// Update an order by ID
+app.put('/order/:id', function (req, res) {
+  const orderId = req.params.id;
+  const {
+    pao_de_alho,
+    linguica_fina,
+    liguica_groca,
+    queijo,
+    frango,
+    porco,
+    costela_de_ovelha,
+    paleta_de_ovelha,
+    picanha,
+    file_mignion,
+    maminha,
+    entrecort,
+    costela,
+    vazio,
+    alcatra,
+    capa_de_file,
+    sorvete,
+    chocolate_barra,
+    bombom,
+    ceveja_lata,
+    refrigerante,
+    agua_sem_gas,
+    agua_com_gas,
+    espumante,
+    entrega,
+    pagamento,
+  } = req.body;
+
+  // ... (you may want to add validation for required fields here) ...
+
+  const updateOrderQuery = `
+    UPDATE orders
+    SET
+      pao_de_alho = ?,
+      linguica_fina = ?,
+      liguica_groca = ?,
+      queijo = ?,
+      frango = ?,
+      porco = ?,
+      costela_de_ovelha = ?,
+      paleta_de_ovelha = ?,
+      picanha = ?,
+      file_mignion = ?,
+      maminha = ?,
+      entrecort = ?,
+      costela = ?,
+      vazio = ?,
+      alcatra = ?,
+      capa_de_file = ?,
+      sorvete = ?,
+      chocolate_barra = ?,
+      bombom = ?,
+      ceveja_lata = ?,
+      refrigerante = ?,
+      agua_sem_gas = ?,
+      agua_com_gas = ?,
+      espumante = ?,
+      entrega = ?,
+      pagamento = ?
+    WHERE id = ?
+  `;
+
+  connection.query(
+    updateOrderQuery,
+    [
+      pao_de_alho,
+      linguica_fina,
+      liguica_groca,
+      queijo,
+      frango,
+      porco,
+      costela_de_ovelha,
+      paleta_de_ovelha,
+      picanha,
+      file_mignion,
+      maminha,
+      entrecort,
+      costela,
+      vazio,
+      alcatra,
+      capa_de_file,
+      sorvete,
+      chocolate_barra,
+      bombom,
+      ceveja_lata,
+      refrigerante,
+      agua_sem_gas,
+      agua_com_gas,
+      espumante,
+      entrega,
+      pagamento,
+      orderId,
+    ],
+    function (error, results) {
+      if (error) {
+        console.error('Error updating order by ID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'Order not found' });
+      } else {
+        res.status(200).json({ message: 'Order updated successfully' });
+      }
+    }
+  );
+});
+
+// Delete an order by ID
+app.delete('/order/:id', function (req, res) {
+  const orderId = req.params.id;
+
+  const deleteOrderQuery = 'DELETE FROM orders WHERE id = ?';
+  connection.query(deleteOrderQuery, [orderId], function (error, results) {
+    if (error) {
+      console.error('Error deleting order by ID:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    if (results.affectedRows === 0) {
+      res.status(404).json({ error: 'Order not found' });
+    } else {
+      res.status(200).json({ message: 'Order deleted successfully' });
+    }
+  });
+});
+
 app.listen(3005, () => {
   console.log('Server is running on http://localhost:3005');
 });
