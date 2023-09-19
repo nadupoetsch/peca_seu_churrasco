@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json()); // Parse JSON requests
+app.use(bodyParser.json()); // Analisar solicitações JSON
 
 const connection = mysql.createPool({
   host: 'localhost',
@@ -14,43 +14,43 @@ const connection = mysql.createPool({
   database: 'peca_seu_churrasco_2',
 });
 
-// Add a new user
+// Adicionar um novo usuário
 app.post('/user', function (req, res) {
   const { email, senha, nome, cpf, endereco } = req.body;
 
-  // Validate that required fields are provided
+  // Validar se os campos obrigatórios foram fornecidos
   if (!email || !senha || !nome || !cpf || !endereco) {
-    res.status(400).json({ error: 'All fields are required' });
+    res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     return;
   }
 
-  // Check if the email already exists in the database
+  // Verificar se o email já existe no banco de dados
   const checkEmailQuery = 'SELECT * FROM user WHERE email = ?';
   connection.query(checkEmailQuery, [email], function (checkError, checkResults) {
     if (checkError) {
-      console.error('Error checking email:', checkError);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao verificar o email:', checkError);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
 
-    // If the email already exists, return an error
+    // Se o email já existe, retorne um erro
     if (checkResults.length > 0) {
-      res.status(400).json({ error: 'Email already exists' });
+      res.status(400).json({ error: 'Email já existe' });
       return;
     }
 
-    // If the email doesn't exist, insert the new user
+    // Se o email não existe, insira o novo usuário
     const insertUserQuery = 'INSERT INTO user (email, senha, nome, cpf, endereco) VALUES (?, ?, ?, ?, ?)';
     connection.query(insertUserQuery, [email, senha, nome, cpf, endereco], function (insertError, insertResults) {
       if (insertError) {
-        console.error('Error inserting user data:', insertError);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Erro ao inserir os dados do usuário:', insertError);
+        res.status(500).json({ error: 'Erro Interno do Servidor' });
         return;
       }
 
-      console.log('User created successfully with ID:', insertResults.insertId);
+      console.log('Usuário criado com sucesso com o ID:', insertResults.insertId);
 
-      // Return the newly created user data
+      // Retorne os dados do novo usuário criado
       const newUser = {
         id: insertResults.insertId,
         email,
@@ -60,48 +60,48 @@ app.post('/user', function (req, res) {
         endereco,
       };
 
-      res.status(201).json({ message: 'User created successfully', user: newUser });
+      res.status(201).json({ message: 'Usuário criado com sucesso', user: newUser });
     });
   });
 });
 
-// Retrieve all users
+// Recuperar todos os usuários
 app.get('/user', function (req, res) {
   connection.query('SELECT * FROM user', function (error, results) {
     if (error) {
-      console.error('Error retrieving users:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao recuperar os usuários:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
     res.status(200).json(results);
   });
 });
 
-// Retrieve a specific user by ID
+// Recuperar um usuário específico pelo ID
 app.get('/user/:id', function (req, res) {
   const userId = req.params.id;
 
   connection.query('SELECT * FROM user WHERE id = ?', [userId], function (error, results) {
     if (error) {
-      console.error('Error retrieving user by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao recuperar o usuário pelo ID:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
 
     if (results.length === 0) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: 'Usuário não encontrado' });
     } else {
       res.status(200).json(results[0]);
     }
   });
 });
 
-// Update a user by ID
+// Atualizar um usuário pelo ID
 app.put('/user/:id', function (req, res) {
   const userId = req.params.id;
   const { email, senha, nome, cpf, endereco } = req.body;
 
-  // ... (you may want to add validation for required fields here) ...
+  // local para adicionar validação para campos obrigatórios
 
   const updateUserQuery = 'UPDATE user SET email = ?, senha = ?, nome = ?, cpf = ?, endereco = ? WHERE id = ?';
   connection.query(
@@ -109,41 +109,41 @@ app.put('/user/:id', function (req, res) {
     [email, senha, nome, cpf, endereco, userId],
     function (error, results) {
       if (error) {
-        console.error('Error updating user by ID:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Erro ao atualizar o usuário pelo ID:', error);
+        res.status(500).json({ error: 'Erro Interno do Servidor' });
         return;
       }
 
       if (results.affectedRows === 0) {
-        res.status(404).json({ error: 'User not found' });
+        res.status(404).json({ error: 'Usuário não encontrado' });
       } else {
-        res.status(200).json({ message: 'User updated successfully' });
+        res.status(200).json({ message: 'Usuário atualizado com sucesso' });
       }
     }
   );
 });
 
-// Delete a user by ID
+// Excluir um usuário pelo ID
 app.delete('/user/:id', function (req, res) {
   const userId = req.params.id;
 
   const deleteUserQuery = 'DELETE FROM user WHERE id = ?';
   connection.query(deleteUserQuery, [userId], function (error, results) {
     if (error) {
-      console.error('Error deleting user by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao excluir o usuário pelo ID:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
 
     if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: 'Usuário não encontrado' });
     } else {
-      res.status(200).json({ message: 'User deleted successfully' });
+      res.status(200).json({ message: 'Usuário excluído com sucesso' });
     }
   });
 });
 
-
+// Rota para criar um novo pedido
 app.post('/order', function (req, res) {
   const {
     pao_de_alho,
@@ -174,7 +174,7 @@ app.post('/order', function (req, res) {
     pagamento,
   } = req.body;
 
-  // ... (you may want to add validation for required fields here) ...
+  // adicionar validação para campos obrigatórios
 
   const insertOrderQuery = `
     INSERT INTO orders (
@@ -240,14 +240,14 @@ app.post('/order', function (req, res) {
     ],
     function (error, results) {
       if (error) {
-        console.error('Error inserting order data:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Erro ao inserir os dados do pedido:', error);
+        res.status(500).json({ error: 'Erro Interno do Servidor' });
         return;
       }
 
-      console.log('Order created successfully with ID:', results.insertId);
+      console.log('Pedido criado com sucesso com o ID:', results.insertId);
 
-      // Return the newly created order data
+      // Retorne os dados do novo pedido criado
       const newOrder = {
         id: results.insertId,
         pao_de_alho,
@@ -278,43 +278,43 @@ app.post('/order', function (req, res) {
         pagamento,
       };
 
-      res.status(201).json({ message: 'Order created successfully', order: newOrder });
+      res.status(201).json({ message: 'Pedido criado com sucesso', order: newOrder });
     }
   );
 });
 
-// Retrieve all orders
+// Recuperar todos os pedidos
 app.get('/order', function (req, res) {
   connection.query('SELECT * FROM orders', function (error, results) {
     if (error) {
-      console.error('Error retrieving orders:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao recuperar os pedidos:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
     res.status(200).json(results);
   });
 });
 
-// Retrieve a specific order by ID
+// Recuperar um pedido específico pelo ID
 app.get('/order/:id', function (req, res) {
   const orderId = req.params.id;
 
   connection.query('SELECT * FROM orders WHERE id = ?', [orderId], function (error, results) {
     if (error) {
-      console.error('Error retrieving order by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao recuperar o pedido pelo ID:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
 
     if (results.length === 0) {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: 'Pedido não encontrado' });
     } else {
       res.status(200).json(results[0]);
     }
   });
 });
 
-// Update an order by ID
+// Atualizar um pedido pelo ID
 app.put('/order/:id', function (req, res) {
   const orderId = req.params.id;
   const {
@@ -346,7 +346,7 @@ app.put('/order/:id', function (req, res) {
     pagamento,
   } = req.body;
 
-  // ... (you may want to add validation for required fields here) ...
+  // adicionar validação para campos obrigatórios
 
   const updateOrderQuery = `
     UPDATE orders
@@ -413,40 +413,40 @@ app.put('/order/:id', function (req, res) {
     ],
     function (error, results) {
       if (error) {
-        console.error('Error updating order by ID:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Erro ao atualizar o pedido pelo ID:', error);
+        res.status(500).json({ error: 'Erro Interno do Servidor' });
         return;
       }
 
       if (results.affectedRows === 0) {
-        res.status(404).json({ error: 'Order not found' });
+        res.status(404).json({ error: 'Pedido não encontrado' });
       } else {
-        res.status(200).json({ message: 'Order updated successfully' });
+        res.status(200).json({ message: 'Pedido atualizado com sucesso' });
       }
     }
   );
 });
 
-// Delete an order by ID
+// Excluir um pedido pelo ID
 app.delete('/order/:id', function (req, res) {
   const orderId = req.params.id;
 
   const deleteOrderQuery = 'DELETE FROM orders WHERE id = ?';
   connection.query(deleteOrderQuery, [orderId], function (error, results) {
     if (error) {
-      console.error('Error deleting order by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Erro ao excluir o pedido pelo ID:', error);
+      res.status(500).json({ error: 'Erro Interno do Servidor' });
       return;
     }
 
     if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'Order not found' });
+      res.status(404).json({ error: 'Pedido não encontrado' });
     } else {
-      res.status(200).json({ message: 'Order deleted successfully' });
+      res.status(200).json({ message: 'Pedido excluído com sucesso' });
     }
   });
 });
 
 app.listen(3005, () => {
-  console.log('Server is running on http://localhost:3005');
+  console.log('Servidor está rodando em http://localhost:3005');
 });
